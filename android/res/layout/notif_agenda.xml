@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 常驻提醒：标题+倒计时 / 横向条目块 / 下一项（课表与日程共用） -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="14dp"
+    android:paddingRight="14dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="3dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/nt_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:textColor="#FF000000" />
+
+        <Chronometer
+            android:id="@+id/nt_chrono"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#FF000000" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="7dp">
+
+        <ImageView android:id="@+id/nt_c0" android:layout_width="44dp" android:layout_height="26dp" android:scaleType="fitXY" />
+        <ImageView android:id="@+id/nt_c1" android:layout_width="44dp" android:layout_height="26dp" android:layout_marginLeft="4dp" android:scaleType="fitXY" />
+        <ImageView android:id="@+id/nt_c2" android:layout_width="44dp" android:layout_height="26dp" android:layout_marginLeft="4dp" android:scaleType="fitXY" />
+        <ImageView android:id="@+id/nt_c3" android:layout_width="44dp" android:layout_height="26dp" android:layout_marginLeft="4dp" android:scaleType="fitXY" />
+        <ImageView android:id="@+id/nt_c4" android:layout_width="44dp" android:layout_height="26dp" android:layout_marginLeft="4dp" android:scaleType="fitXY" />
+        <ImageView android:id="@+id/nt_c5" android:layout_width="44dp" android:layout_height="26dp" android:layout_marginLeft="4dp" android:scaleType="fitXY" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/nt_next"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="7dp"
+        android:textSize="13sp"
+        android:singleLine="true"
+        android:scrollHorizontally="true"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:textColor="#FF000000" />
+</LinearLayout>

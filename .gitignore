@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+build/
+dist/
+node_modules/
+logs/
+*.log
+**/obj/
+**/bin/
+android/.build/
+android/output/
+*.keystore
+*.jks
+local.properties
+.env
+.env.*

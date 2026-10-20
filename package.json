@@ -1,0 +1,17 @@
+{
+  "name": "campus-life-desktop",
+  "version": "1.4.0",
+  "private": true,
+  "description": "大学食草路：Windows 桌面与 Android 蓝牙伴侣",
+  "main": "desktop/main.cjs",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/*.test.cjs && node android/tests/schedule.test.js",
+    "build:web": "node scripts/build-web.cjs",
+    "package": "node scripts/package.cjs"
+  },
+  "devDependencies": {
+    "electron": "43.4.0",
+    "playwright-core": "1.60.0"
+  }
+}
