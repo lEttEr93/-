@@ -14,3 +14,4 @@ android/output/
 local.properties
 .env
 .env.*
+.build-tmp/

@@ -47,6 +47,8 @@ public class MainActivity extends Activity {
     private static final int REQ_NOTIF = 1002;
     private static final int REQ_SMS = 1003;
     private String pendingTab = null;
+    private BluetoothSync bluetoothSync;
+    private static final int REQ_BLUETOOTH = 1004;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +70,18 @@ public class MainActivity extends Activity {
         });
 
         dataFile = new File(getFilesDir(), "ledger.json");
+        bluetoothSync = new BluetoothSync(new BluetoothSync.Listener() {
+            public void request(final String json) {
+                runOnUiThread(new Runnable() { public void run() {
+                    if (webView != null) webView.evaluateJavascript("window.__onBluetoothRequest && window.__onBluetoothRequest(" + JSONObject.quote(json) + ");", null);
+                }});
+            }
+            public void closed() {
+                runOnUiThread(new Runnable() { public void run() {
+                    if (webView != null) webView.evaluateJavascript("window.__onBluetoothClosed && window.__onBluetoothClosed();", null);
+                }});
+            }
+        });
 
         // ---- Status bar tint ----
         Window window = getWindow();
@@ -148,6 +162,12 @@ public class MainActivity extends Activity {
     }
 
     @Override
+    protected void onDestroy() {
+        if (bluetoothSync != null) bluetoothSync.stop();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQ_FILE) {
             Uri[] results = null;
@@ -176,6 +196,11 @@ public class MainActivity extends Activity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == REQ_BLUETOOTH) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) bluetoothSync.start();
+            else Toast.makeText(this, "需要「附近的设备」权限才能同步", Toast.LENGTH_LONG).show();
+            return;
+        }
         if (requestCode == REQ_NOTIF) {
             boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
             if (webView != null) {
@@ -262,12 +287,14 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public boolean save(final String json) {
             try {
-                FileOutputStream out = new FileOutputStream(dataFile);
+                new JSONObject(json);
+                File temporary = new File(getFilesDir(), "ledger.json.tmp");
+                FileOutputStream out = new FileOutputStream(temporary);
                 OutputStreamWriter w = new OutputStreamWriter(out, Charset.forName("UTF-8"));
                 w.write(json);
                 w.flush();
                 w.close();
-                return true;
+                return temporary.renameTo(dataFile);
             } catch (Exception e) {
                 return false;
             }
@@ -325,7 +352,59 @@ public class MainActivity extends Activity {
 
         @JavascriptInterface
         public String appVersion() {
-            return "1.3";
+            return "1.4";
+        }
+
+        @JavascriptInterface
+        public String bluetoothStatus() { return bluetoothSync.status(); }
+
+        @JavascriptInterface
+        public boolean bluetoothRunning() { return bluetoothSync.isRunning(); }
+
+        @JavascriptInterface
+        public void startBluetooth() {
+            runOnUiThread(new Runnable() { public void run() {
+                if (Build.VERSION.SDK_INT >= 31 && checkSelfPermission("android.permission.BLUETOOTH_CONNECT") != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(new String[]{"android.permission.BLUETOOTH_CONNECT"}, REQ_BLUETOOTH);
+                    return;
+                }
+                bluetoothSync.start();
+            }});
+        }
+
+        @JavascriptInterface
+        public void stopBluetooth() { bluetoothSync.stop(); }
+
+        @JavascriptInterface
+        public boolean bluetoothReply(String id, String json) { return bluetoothSync.reply(id, json); }
+
+        @JavascriptInterface
+        public boolean backupForSync() {
+            try {
+                if (!dataFile.exists()) return true;
+                File dir = new File(getFilesDir(), "sync-backups");
+                if (!dir.exists() && !dir.mkdirs()) return false;
+                File f = new File(dir, String.valueOf(System.currentTimeMillis()) + ".json");
+                FileInputStream in = new FileInputStream(dataFile);
+                FileOutputStream out = new FileOutputStream(f);
+                try { byte[] buffer = new byte[8192]; int n; while ((n = in.read(buffer)) != -1) out.write(buffer, 0, n); out.flush(); }
+                finally { in.close(); out.close(); }
+                File[] files = dir.listFiles();
+                if (files != null && files.length > 30) {
+                    java.util.Arrays.sort(files);
+                    for (int i = 0; i < files.length - 30; i++) files[i].delete();
+                }
+                return true;
+            } catch (Exception e) { return false; }
+        }
+
+        @JavascriptInterface
+        public String latestSyncBackup() {
+            File dir = new File(getFilesDir(), "sync-backups");
+            File[] files = dir.listFiles();
+            if (files == null || files.length == 0) return "";
+            java.util.Arrays.sort(files);
+            return readTextFile(files[files.length - 1]);
         }
 
         @JavascriptInterface

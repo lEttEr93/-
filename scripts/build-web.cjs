@@ -1,0 +1,18 @@
+'use strict';
+const fs = require('node:fs');
+const path = require('node:path');
+const root = path.resolve(__dirname, '..');
+const out = path.join(root,'build','web');
+fs.mkdirSync(out,{recursive:true});
+let html = fs.readFileSync(path.join(root,'android/assets/index.html'),'utf8');
+html = html.replace('<head>', '<head>\n<meta http-equiv="Content-Security-Policy" content="default-src \'self\' data: blob:; script-src \'self\' \'unsafe-inline\' \'unsafe-eval\'; style-src \'self\' \'unsafe-inline\'; img-src \'self\' data: blob:; connect-src https://api.deepseek.com;">');
+html = html.replace('</head>', '<link rel="stylesheet" href="desktop.css">\n<script src="desktop-bridge.js"></script>\n</head>');
+html = html.replace('<script src="data.js"></script>','<script src="data.js"></script>');
+html = html.replace('<script src="bluetooth-ui.js"></script>','');
+html = html.replace('</body>','<script src="desktop-ui.js"></script>\n</body>');
+fs.writeFileSync(path.join(out,'index.html'),html);
+for (const f of ['desktop.css','desktop-bridge.js','desktop-ui.js','widget.html','widget.css','widget.js']) fs.copyFileSync(path.join(root,'desktop',f),path.join(out,f));
+fs.copyFileSync(path.join(root,'shared/data.js'),path.join(out,'data.js'));
+const kb=html.match(/var KB_BUILTIN\s*=\s*([\s\S]*?);\s*var KB\s*=/);
+fs.writeFileSync(path.join(out,'kb.js'),'window.BuiltInKB = '+JSON.stringify(JSON.parse(kb[1]))+';\n');
+console.log('Built desktop web assets: '+out);

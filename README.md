@@ -5,7 +5,7 @@ Windows 桌面应用、课表/日程常驻小组件，以及兼容现有数据�
 
 源码来自用户提供的 jizhang-src-2026-10-20.tar..gz。账单、月结、统计、课表、日程、小径和 AI 均共用 Android 的业务实现。
 
-开发环境：Node 22+、Electron 43.4、.NET 8 SDK、JDK 17+、Android SDK platform 33/build-tools 33.0.2。
+开发环境：Node 22+、Electron 43.4、.NET 8 SDK、JDK 17、Android SDK platform 33/build-tools 33.0.2。构建详情见 docs/BUILD.md。
 
 ```powershell
 npm ci
