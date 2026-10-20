@@ -134,3 +134,13 @@ python gen_timetable.py schedule.ics > kb_data.js
 /storage/emulated/0/Download/jizhang-src/                  # 完整源码副本
 /storage/emulated/0/Download/jizhang-src-YYYY-MM-DD.tar.gz # 打包备份
 ```
+# v1.4：电脑蓝牙同步（2026-10-20）
+
+保留原应用全部业务，增加「我的 → 电脑蓝牙同步」安全 RFCOMM 服务。Android 12+ 需授权附近设备；同步时保持本应用前台打开，电脑选择方向，两端确认后整份替换。接收前自动备份，API Key、外观和通知设置不传输。真实手机收发尚待安装本版后验证。
+
+Windows 上从源码包根运行 `scripts/build-android.ps1`，需要 JDK 17、Android SDK 33 / build-tools 33.0.2，详见 `docs/BUILD.md`。原 Termux `build.sh` 保留。
+
+输入源码中没有原手机签名密钥。附带 APK 是新测试签名，不能覆盖签名不同的原应用；必须先导出并核验备份，推荐使用原 Termux 密钥构建更新。下文是原版历史说明，版本和路径以本节及新文档为准。
+
+---
+
